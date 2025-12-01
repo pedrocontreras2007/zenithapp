@@ -14,7 +14,8 @@ import 'add_edit_vehiculo_screen.dart';
 
 class VehicleDetailScreen extends StatefulWidget {
   final Vehiculo vehiculo;
-  const VehicleDetailScreen({super.key, required this.vehiculo});
+  final bool canEdit;
+  const VehicleDetailScreen({super.key, required this.vehiculo, this.canEdit = true});
 
   @override
   State<VehicleDetailScreen> createState() => _VehicleDetailScreenState();
@@ -37,17 +38,18 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
           appBar: AppBar(
             title: Text('Detalle ${vehiculo.matricula}'),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AddEditVehiculoScreen(vehiculo: vehiculo),
-                    ),
-                  );
-                },
-              ),
+              if (widget.canEdit)
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AddEditVehiculoScreen(vehiculo: vehiculo),
+                      ),
+                    );
+                  },
+                ),
             ],
           ),
           body: SingleChildScrollView(
@@ -57,34 +59,40 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
               children: [
                 _buildVehicleHeader(context, vehiculo),
                 const SizedBox(height: 24),
-                _buildSectionTitle('Mantenimientos programados', onAdd: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AddEditMantenimientoScreen(vehiculo: vehiculo),
-                    ),
-                  );
-                }),
+                _buildSectionTitle('Mantenimientos programados', onAdd: widget.canEdit
+                    ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AddEditMantenimientoScreen(vehiculo: vehiculo),
+                          ),
+                        );
+                      }
+                    : null),
                 _buildMaintenanceList(vehiculo),
                 const SizedBox(height: 24),
-                _buildSectionTitle('Consumo de recursos', onAdd: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AddResourceLogScreen(vehiculo: vehiculo),
-                    ),
-                  );
-                }),
+                _buildSectionTitle('Consumo de recursos', onAdd: widget.canEdit
+                    ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AddResourceLogScreen(vehiculo: vehiculo),
+                          ),
+                        );
+                      }
+                    : null),
                 _buildResourceList(vehiculo),
                 const SizedBox(height: 24),
-                _buildSectionTitle('Conductores disponibles', onAdd: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AssignDriverScreen(vehiculo: vehiculo),
-                    ),
-                  );
-                }),
+                _buildSectionTitle('Conductores disponibles', onAdd: widget.canEdit
+                    ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AssignDriverScreen(vehiculo: vehiculo),
+                          ),
+                        );
+                      }
+                    : null),
                 _buildDriverList(vehiculo),
               ],
             ),
@@ -223,17 +231,19 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
               ),
               trailing: IconButton(
                 icon: const Icon(Icons.edit),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AddEditMantenimientoScreen(
-                        vehiculo: vehiculo,
-                        mantenimiento: mantenimiento,
-                      ),
-                    ),
-                  );
-                },
+                onPressed: widget.canEdit
+                    ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AddEditMantenimientoScreen(
+                              vehiculo: vehiculo,
+                              mantenimiento: mantenimiento,
+                            ),
+                          ),
+                        );
+                      }
+                    : null,
               ),
             );
           }).toList(),

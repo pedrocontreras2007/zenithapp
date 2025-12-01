@@ -60,7 +60,7 @@ class _AddEditVehiculoScreenState extends State<AddEditVehiculoScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-    var guardado = false;
+    var vehiculoGuardado = false;
 
     final nuevoVehiculo = Vehiculo(
       id: widget.vehiculo?.id ?? '', // Si edita conserva ID, si crea es temporal
@@ -76,13 +76,17 @@ class _AddEditVehiculoScreenState extends State<AddEditVehiculoScreen> {
     );
 
     try {
+      debugPrint('[Vehículo] Paso 1 -> ${widget.vehiculo == null ? 'creando' : 'actualizando'} ${nuevoVehiculo.matricula}');
       if (widget.vehiculo == null) {
         await _firestoreService.agregarVehiculo(nuevoVehiculo);
       } else {
         await _firestoreService.actualizarVehiculo(nuevoVehiculo);
       }
-      guardado = true;
-    } catch (e) {
+      vehiculoGuardado = true;
+      debugPrint('[Vehículo] Paso 1 completado');
+    } catch (e, st) {
+      debugPrint('[Vehículo] Error al guardar: $e');
+      debugPrintStack(stackTrace: st);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al guardar: $e')),
@@ -90,7 +94,7 @@ class _AddEditVehiculoScreenState extends State<AddEditVehiculoScreen> {
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
-        if (guardado) {
+        if (vehiculoGuardado) {
           Navigator.pop(context);
         }
       }

@@ -51,40 +51,66 @@ class _AddEditMantenimientoScreenState extends State<AddEditMantenimientoScreen>
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
+    var mantenimientoGuardado = false;
+    var vehiculoActualizado = false;
     var guardado = false;
+    final requiereActualizarVehiculo = _estado != 'Completado';
 
-    final newMantenimiento = Mantenimiento(
+    final mantenimiento = Mantenimiento(
       id: widget.mantenimiento?.id ?? '',
       vehiculoId: widget.vehiculo.id,
       tipo: _tipo,
       fechaProgramada: _fechaProgramada,
-      fechaRealizada: _fechaRealizada,
+      fechaRealizada: _estado == 'Completado'
+          ? (_fechaRealizada ?? DateTime.now())
+          : null,
       observaciones: _observacionesController.text.trim(),
       tecnico: _tecnicoController.text.trim(),
       estado: _estado,
     );
 
     try {
+      debugPrint('[Mantenimiento] Paso 1 -> ${widget.mantenimiento == null ? 'registrando' : 'actualizando'} ${widget.vehiculo.matricula}');
       if (widget.mantenimiento == null) {
-        await _service.registrar(newMantenimiento);
+        await _service.registrar(mantenimiento);
       } else {
-        await _service.actualizar(newMantenimiento);
+        await _service.actualizar(mantenimiento);
       }
+      mantenimientoGuardado = true;
+      debugPrint('[Mantenimiento] Paso 1 completado');
 
-      // Si es mantenimiento futuro actualizamos la alerta del vehículo
-      if (_estado != 'Completado') {
+      if (requiereActualizarVehiculo) {
+        debugPrint('[Mantenimiento] Paso 2 -> actualizando vehículo ${widget.vehiculo.id}');
         await _vehiculoService.actualizarProximoMantenimiento(
           vehiculoId: widget.vehiculo.id,
           fecha: _fechaProgramada,
           tecnico: _tecnicoController.text.trim(),
         );
+        vehiculoActualizado = true;
+        debugPrint('[Mantenimiento] Paso 2 completado');
       }
+
       guardado = true;
-    } catch (e) {
+    } catch (e, st) {
+      final pasoFallido = mantenimientoGuardado
+          ? (requiereActualizarVehiculo ? 'Paso 2 (actualizar vehículo)' : 'Paso final')
+          : 'Paso 1 (guardar mantenimiento)';
+      debugPrint('[Mantenimiento] Error en $pasoFallido: $e');
+      debugPrintStack(stackTrace: st);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar mantenimiento: $e')),
-      );
+
+      if (mantenimientoGuardado && !vehiculoActualizado && requiereActualizarVehiculo) {
+        guardado = true; // el mantenimiento quedó guardado
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('El mantenimiento se guardó, pero no se pudo actualizar el vehículo. Revisa tu conexión.'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error en $pasoFallido: $e')),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() => _loading = false);
