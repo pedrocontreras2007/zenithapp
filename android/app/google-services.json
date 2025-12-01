@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "516847826416",
+    "project_id": "zenithapp-9570a",
+    "storage_bucket": "zenithapp-9570a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:516847826416:android:3f493d02ee25cc6329d935",
+        "android_client_info": {
+          "package_name": "com.example.zenithapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqrkqDEc07tiRm46Y-KuKFOCeW0EJGpOc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:516847826416:android:50ffc7821a99278829d935",
+        "android_client_info": {
+          "package_name": "com.zenith.transporte"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqrkqDEc07tiRm46Y-KuKFOCeW0EJGpOc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
